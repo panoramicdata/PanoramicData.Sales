@@ -270,6 +270,92 @@ function Update-HubSpotDeal {
     return Invoke-HubSpotAPI -Method "PATCH" -Endpoint $endpoint -Body $body
 }
 
+# Function to create a task
+function New-HubSpotTask {
+    param(
+        [string]$Subject,
+        [string]$Notes,
+        [string]$DueDate, # ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ
+        [string]$Priority = "MEDIUM", # HIGH, MEDIUM, LOW
+        [string]$Status = "NOT_STARTED", # NOT_STARTED, IN_PROGRESS, COMPLETED, WAITING, DEFERRED
+        [string[]]$AssociatedDeals,
+        [string[]]$AssociatedContacts,
+        [string[]]$AssociatedCompanies
+    )
+    
+    Write-Host "Creating HubSpot task: $Subject"
+    
+    $properties = @{
+        "hs_task_subject" = $Subject
+        "hs_task_body" = $Notes
+        "hs_task_status" = $Status
+        "hs_task_priority" = $Priority
+    }
+    
+    if ($DueDate) {
+        # Convert to timestamp (milliseconds since epoch)
+        $dueDateTimestamp = ([DateTimeOffset](Get-Date $DueDate)).ToUnixTimeMilliseconds()
+        $properties["hs_timestamp"] = $dueDateTimestamp.ToString()
+    }
+    
+    $endpoint = "crm/v3/objects/tasks"
+    $body = @{
+        "properties" = $properties
+        "associations" = @()
+    }
+    
+    # Add associations
+    if ($AssociatedDeals) {
+        foreach ($dealId in $AssociatedDeals) {
+            $body.associations += @{
+                "to" = @{
+                    "id" = $dealId
+                }
+                "types" = @(
+                    @{
+                        "associationCategory" = "HUBSPOT_DEFINED"
+                        "associationTypeId" = 216  # Task to Deal association
+                    }
+                )
+            }
+        }
+    }
+    
+    if ($AssociatedContacts) {
+        foreach ($contactId in $AssociatedContacts) {
+            $body.associations += @{
+                "to" = @{
+                    "id" = $contactId
+                }
+                "types" = @(
+                    @{
+                        "associationCategory" = "HUBSPOT_DEFINED"
+                        "associationTypeId" = 204  # Task to Contact association
+                    }
+                )
+            }
+        }
+    }
+    
+    if ($AssociatedCompanies) {
+        foreach ($companyId in $AssociatedCompanies) {
+            $body.associations += @{
+                "to" = @{
+                    "id" = $companyId
+                }
+                "types" = @(
+                    @{
+                        "associationCategory" = "HUBSPOT_DEFINED"
+                        "associationTypeId" = 218  # Task to Company association
+                    }
+                )
+            }
+        }
+    }
+    
+    return Invoke-HubSpotAPI -Method "POST" -Endpoint $endpoint -Body $body
+}
+
 # Function to get recent manually created deals (excluding auto-generated ones)
 function Get-HubSpotRecentManualDeals {
     param(
@@ -566,8 +652,27 @@ switch ($Action.ToLower()) {
                         Write-Error "Properties parameter is required for creating a contact"
                     }
                 }
+                "task" {
+                    if ($Parameters.ContainsKey("Subject")) {
+                        $taskParams = @{
+                            Subject = $Parameters.Subject
+                        }
+                        if ($Parameters.ContainsKey("Notes")) { $taskParams.Notes = $Parameters.Notes }
+                        if ($Parameters.ContainsKey("DueDate")) { $taskParams.DueDate = $Parameters.DueDate }
+                        if ($Parameters.ContainsKey("Priority")) { $taskParams.Priority = $Parameters.Priority }
+                        if ($Parameters.ContainsKey("Status")) { $taskParams.Status = $Parameters.Status }
+                        if ($Parameters.ContainsKey("AssociatedDeals")) { $taskParams.AssociatedDeals = $Parameters.AssociatedDeals }
+                        if ($Parameters.ContainsKey("AssociatedContacts")) { $taskParams.AssociatedContacts = $Parameters.AssociatedContacts }
+                        if ($Parameters.ContainsKey("AssociatedCompanies")) { $taskParams.AssociatedCompanies = $Parameters.AssociatedCompanies }
+                        
+                        New-HubSpotTask @taskParams
+                    }
+                    else {
+                        Write-Error "Subject parameter is required for creating a task"
+                    }
+                }
                 default {
-                    Write-Error "Create action currently only supports contacts"
+                    Write-Error "Create action currently supports: contacts, tasks"
                 }
             }
         }
@@ -633,23 +738,34 @@ Available Actions:
   search                       - Search for objects using query
   recent                       - Get recent objects (contacts, deals)
   filter                       - Filter deals by date or user
-  create                       - Create new objects
-  update                       - Update existing objects
+  create                       - Create new objects (contacts, tasks)
+  update                       - Update existing objects (contacts, deals)
 
 Object Types:
-  contact, company, deal, pipelines, properties
+  contact, company, deal, task, pipelines, properties
 
 Examples:
+  # Connection and pipelines
   .\HubSpot.ps1 -Action test
+  .\HubSpot.ps1 -Action get -ObjectType pipelines -Parameters @{Type="deals"}
+  
+  # Contacts
   .\HubSpot.ps1 -Action get -ObjectType contact -Parameters @{Email="user@example.com"}
-  .\HubSpot.ps1 -Action get -ObjectType company -Parameters @{Domain="example.com"}
   .\HubSpot.ps1 -Action search -ObjectType contacts -Parameters @{Query="sales"}
+  .\HubSpot.ps1 -Action create -ObjectType contact -Parameters @{Properties=@{email="new@example.com"; firstname="John"; lastname="Doe"}}
+  
+  # Companies
+  .\HubSpot.ps1 -Action get -ObjectType company -Parameters @{Domain="example.com"}
+  .\HubSpot.ps1 -Action search -ObjectType companies -Parameters @{Query="tech"}
+  
+  # Deals
   .\HubSpot.ps1 -Action search -ObjectType deals -Parameters @{Query="*"; ExcludeAutoGenerated=$true}
-  .\HubSpot.ps1 -Action recent -ObjectType contacts -Parameters @{Limit=50}
   .\HubSpot.ps1 -Action recent -ObjectType deals -Parameters @{Limit=20; DaysBack=7}
   .\HubSpot.ps1 -Action filter -ObjectType deals -Parameters @{Date="2025-10-09"; ExcludeAutoGenerated=$true}
-  .\HubSpot.ps1 -Action get -ObjectType pipelines -Parameters @{Type="deals"}
-  .\HubSpot.ps1 -Action create -ObjectType contact -Parameters @{Properties=@{email="new@example.com"; firstname="John"; lastname="Doe"}}
+  .\HubSpot.ps1 -Action update -ObjectType deal -Parameters @{Id="123456"; Properties=@{dealstage="decisionmakerboughtin"}}
+  
+  # Tasks
+  .\HubSpot.ps1 -Action create -ObjectType task -Parameters @{Subject="Follow up call"; Notes="Discuss proposal"; DueDate="2025-10-15T17:00:00.000Z"; Priority="HIGH"; AssociatedDeals=@("123456")}
 
 For detailed help on a specific action, use Get-Help .\HubSpot.ps1 -Detailed
 "@
