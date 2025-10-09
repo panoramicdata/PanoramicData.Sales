@@ -1,0 +1,33 @@
+{
+  // Purple theme for Sales workspace - visual indicator
+  "workbench.colorCustomizations": {
+    // Window border and title bar
+    "titleBar.activeBackground": "#7b3ff2",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#5e2db3",
+    "titleBar.inactiveForeground": "#cccccc",
+    "titleBar.border": "#9d5fff",
+    
+    // Activity bar (left sidebar with icons)
+    "activityBar.background": "#6b2fd6",
+    "activityBar.foreground": "#ffffff",
+    "activityBar.inactiveForeground": "#d0b3ff",
+    "activityBar.border": "#9d5fff",
+    
+    // Status bar (bottom bar)
+    "statusBar.background": "#7b3ff2",
+    "statusBar.foreground": "#ffffff",
+    "statusBar.border": "#9d5fff",
+    "statusBar.noFolderBackground": "#5e2db3",
+    "statusBar.debuggingBackground": "#9d5fff",
+    
+    // Editor border and accent colors
+    "editorGroup.border": "#9d5fff",
+    "panel.border": "#9d5fff",
+    "sideBar.border": "#9d5fff",
+    
+    // Tab highlighting
+    "tab.activeBorder": "#9d5fff",
+    "tab.activeBorderTop": "#9d5fff"
+  }
+}
