@@ -10,6 +10,12 @@ This workspace is maintained by the **Panoramic Data Sales team**
    - Verify index patterns before executing searches
    - Document any custom queries for future reference
 
+8. **When working with HubSpot**:
+   - Always use the HubSpot.ps1 script for HubSpot CRM interactions
+   - Be mindful of API rate limits when making bulk operations
+   - Use appropriate filters to limit data retrieval to what's needed
+   - Document any custom queries or integrations for future reference
+
 8. **Standard QA Workflow Integration with JIRA**:
    - **Always start QA work** by updating the JIRA ticket with a progress comment
    - **Before creating test plans**: Add comment about starting test plan creation
@@ -53,6 +59,12 @@ The `.github/tools/` directory contains PowerShell scripts for system integratio
   - `ELASTIC_USERNAME` - Your Elastic username
   - `ELASTIC_PASSWORD` - Your Elastic password
 - Elastic URL: `https://pdl-elastic-prod.panoramicdata.com`
+
+### HubSpot Integration (`tools/HubSpot.ps1`)
+- Connects to HubSpot CRM using environment variables
+- Required environment variables:
+  - `HUBSPOT_PERSONAL_ACCESS_TOKEN` - Your HubSpot Personal Access Token
+- HubSpot API URL: `https://api.hubapi.com`
 
 ## Guidance for you ("Merlin", an AI Assistant that helps with sales processes)
 
