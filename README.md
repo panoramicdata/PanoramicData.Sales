@@ -1,10 +1,12 @@
 # PanoramicData.Sales
 
-Sales tools and automation scripts for Panoramic Data's sales processes and workflows.
+**Professional sales automation tools for Panoramic Data**
 
 ## Overview
 
-This repository contains PowerShell automation tools and AI-assisted workflows designed to streamline sales operations at Panoramic Data. The project integrates with key business systems including JIRA, Elasticsearch, and HubSpot CRM to provide a unified interface for sales team activities.
+This is a **sales tools development project** - a collection of PowerShell automation tools and AI-assisted workflows designed to streamline sales operations at Panoramic Data. The tools integrate with key business systems including JIRA, Elasticsearch, and HubSpot CRM to provide powerful command-line interfaces for sales team activities.
+
+These are production tools actively used by the sales team for daily operations.
 
 ## Visual Identity
 
@@ -18,11 +20,11 @@ This workspace uses a **purple/magenta theme** to provide a clear visual indicat
 
 ## Tools & Scripts
 
-### Available Integration Tools
+### Core Sales Tools
 
-Located in `.github/tools/`, these PowerShell scripts provide command-line interfaces to various business systems:
+These PowerShell scripts are located in the `tools/` directory in the project root:
 
-#### 1. **JIRA Integration** (`JIRA.ps1`)
+#### 1. **JIRA Integration** (`tools/JIRA.ps1`)
 Connects to JIRA instance for issue tracking and workflow management.
 
 **Features:**
@@ -38,12 +40,12 @@ Connects to JIRA instance for issue tracking and workflow management.
 
 **Example Usage:**
 ```powershell
-.\JIRA.ps1 -Action get -IssueKey "MS-21863"
-.\JIRA.ps1 -Action comment -IssueKey "MS-21863" -Parameters @{Comment="Analysis complete"}
-.\JIRA.ps1 -Action transition -IssueKey "MS-21863" -Parameters @{Transition="In Progress"}
+.\tools\JIRA.ps1 -Action get -IssueKey "MS-21863"
+.\tools\JIRA.ps1 -Action comment -IssueKey "MS-21863" -Parameters @{Comment="Analysis complete"}
+.\tools\JIRA.ps1 -Action transition -IssueKey "MS-21863" -Parameters @{Transition="In Progress"}
 ```
 
-#### 2. **Elastic Integration** (`Elastic.ps1`)
+#### 2. **Elastic Integration** (`tools/Elastic.ps1`)
 Connects to Elastic cluster for log analysis and system diagnostics.
 
 **Features:**
@@ -59,10 +61,10 @@ Connects to Elastic cluster for log analysis and system diagnostics.
 
 **Example Usage:**
 ```powershell
-.\Elastic.ps1 -Action search -Index "logs-*" -Parameters @{Query="error"; TimeRange="24h"}
+.\tools\Elastic.ps1 -Action search -Index "logs-*" -Parameters @{Query="error"; TimeRange="24h"}
 ```
 
-#### 3. **HubSpot Integration** (`HubSpot.ps1`)
+#### 3. **HubSpot Integration** (`tools/HubSpot.ps1`)
 Connects to HubSpot CRM for sales pipeline and contact management.
 
 **Features:**
@@ -150,8 +152,8 @@ $env:HUBSPOT_PERSONAL_ACCESS_TOKEN = "your-pat-token"
 
 3. Test your connections:
    ```powershell
-   .\.github\tools\JIRA.ps1 -Action get -IssueKey "TEST-1"
-   .\.github\tools\HubSpot.ps1 -Action test
+   .\JIRA.ps1 -Action get -IssueKey "TEST-1"
+   .\HubSpot.ps1 -Action test
    ```
 
 ## AI Assistant Integration

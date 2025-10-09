@@ -1,5 +1,31 @@
 # Copilot Instructions for Panoramic Data Sales Team
 
+## CRITICAL: VS Code Command Approval Bug Workaround
+
+**Issue**: VS Code's `chat.tools.terminal.autoApprove` setting has a critical bug where it incorrectly parses PowerShell commands containing semicolons (`;`). It treats semicolons as command separators even when they appear inside hashtables `@{...}`, scriptblocks `{...}`, or string literals. This causes approval dialogs to show meaningless command fragments.
+
+**Solution**: When generating PowerShell commands that will be run through Copilot Chat:
+1. **NEVER use semicolons** in command-line arguments
+2. **Move complex logic into the PowerShell script itself** as dedicated actions
+3. **Create wrapper actions** (like `-Action closing`) that handle filtering/formatting internally
+4. **Use JSON strings** (`-ParametersJson`) instead of inline hashtables when needed
+5. **Avoid calculated properties** in Select-Object - do formatting in the script
+
+**Example BAD command** (triggers approval dialog):
+```powershell
+.\tools\HubSpot.ps1 -Parameters @{Query="*"; Limit=200} | Where-Object { $_.properties.dealstage -eq "closed"; $_.properties.amount -gt 1000 }
+```
+
+**Example GOOD command** (no approval dialog):
+```powershell
+.\tools\HubSpot.ps1 -Action closing -ObjectType deals
+```
+
+**All three integration scripts** (HubSpot.ps1, JIRA.ps1, Elastic.ps1) should follow this pattern:
+- Provide high-level actions that encapsulate common workflows
+- Accept `-ParametersJson` for complex parameter passing
+- Handle all semicolon-containing logic internally
+
 ## Team Information
 
 This workspace is maintained by the **Panoramic Data Sales team**
