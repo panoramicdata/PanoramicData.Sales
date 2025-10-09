@@ -1,33 +1,8 @@
 {
   // Purple theme for Sales workspace - visual indicator
   "workbench.colorCustomizations": {
-    // Window border and title bar
-    "titleBar.activeBackground": "#7d3e7d",
-    "titleBar.activeForeground": "#ffffff",
-    "titleBar.inactiveBackground": "#5e2c5e",
-    "titleBar.inactiveForeground": "#cccccc",
-    "titleBar.border": "#9a4f9a",
-    
-    // Activity bar (left sidebar with icons)
-    "activityBar.background": "#6b366b",
-    "activityBar.foreground": "#ffffff",
-    "activityBar.inactiveForeground": "#d0a8d0",
     "activityBar.border": "#9a4f9a",
-    
-    // Status bar (bottom bar)
-    "statusBar.background": "#7d3e7d",
-    "statusBar.foreground": "#ffffff",
-    "statusBar.border": "#9a4f9a",
     "statusBar.noFolderBackground": "#5e2c5e",
-    "statusBar.debuggingBackground": "#9a4f9a",
-    
-    // Editor border and accent colors
-    "editorGroup.border": "#9a4f9a",
-    "panel.border": "#9a4f9a",
-    "sideBar.border": "#9a4f9a",
-    
-    // Tab highlighting
-    "tab.activeBorder": "#9a4f9a",
     "tab.activeBorderTop": "#9a4f9a"
   },
   
@@ -39,10 +14,10 @@
   "chat.tools.autoApprove": true,
   "chat.agent.maxRequests": 128,
   "chat.tools.terminal.autoApprove": {
-    // Auto-approve PowerShell scripts in tools folder
-    "/^\\.\\\\tools\\\\/": true,
-    "pwsh": true,
-    "powershell": true,
+    // Auto-approve any command that includes our tools folder scripts
+    "/tools\\\\HubSpot\\.ps1/": true,
+    "/tools\\\\JIRA\\.ps1/": true,
+    "/tools\\\\Elastic\\.ps1/": true,
     // Auto-approve common safe git commands
     "/^git (status|log|diff|show|branch|tag)/": true
   }
