@@ -37,5 +37,13 @@
   "github.copilot.chat.terminalChatLocation": "terminal",
   "github.copilot.chat.executeCommand.enabled": true,
   "chat.tools.autoApprove": true,
-  "chat.agent.maxRequests": 128
+  "chat.agent.maxRequests": 128,
+  "chat.tools.terminal.autoApprove": {
+    // Auto-approve PowerShell scripts in tools folder
+    "/^\\.\\\\tools\\\\/": true,
+    "pwsh": true,
+    "powershell": true,
+    // Auto-approve common safe git commands
+    "/^git (status|log|diff|show|branch|tag)/": true
+  }
 }
