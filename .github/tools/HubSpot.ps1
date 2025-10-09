@@ -254,6 +254,22 @@ function Update-HubSpotContact {
     return Invoke-HubSpotAPI -Method "PATCH" -Endpoint $endpoint -Body $body
 }
 
+# Function to update a deal
+function Update-HubSpotDeal {
+    param(
+        [string]$DealId,
+        [hashtable]$Properties
+    )
+    
+    Write-Host "Updating HubSpot deal: $DealId"
+    $endpoint = "crm/v3/objects/deals/$DealId"
+    $body = @{
+        "properties" = $Properties
+    }
+    
+    return Invoke-HubSpotAPI -Method "PATCH" -Endpoint $endpoint -Body $body
+}
+
 # Function to get recent manually created deals (excluding auto-generated ones)
 function Get-HubSpotRecentManualDeals {
     param(
@@ -571,8 +587,16 @@ switch ($Action.ToLower()) {
                         Write-Error "Id and Properties parameters are required for updating a contact"
                     }
                 }
+                "deal" {
+                    if ($Parameters.ContainsKey("Id") -and $Parameters.ContainsKey("Properties")) {
+                        Update-HubSpotDeal -DealId $Parameters.Id -Properties $Parameters.Properties
+                    }
+                    else {
+                        Write-Error "Id and Properties parameters are required for updating a deal"
+                    }
+                }
                 default {
-                    Write-Error "Update action currently only supports contacts"
+                    Write-Error "Update action currently supports: contacts, deals"
                 }
             }
         }
