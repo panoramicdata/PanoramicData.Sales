@@ -4,7 +4,8 @@
 param(
     [string]$Action,
     [string]$Index,
-    [hashtable]$Parameters = @{}
+    [hashtable]$Parameters = @{},
+    [string]$ParametersJson
 )
 
 # Configuration
@@ -40,6 +41,14 @@ $headers = @{
     "Authorization" = "Basic $credentials"
     "Content-Type" = "application/json"
     "Accept" = "application/json"
+}
+
+# If ParametersJson is provided, convert it and merge with Parameters
+if ($ParametersJson) {
+    $jsonParams = $ParametersJson | ConvertFrom-Json -AsHashtable
+    foreach ($key in $jsonParams.Keys) {
+        $Parameters[$key] = $jsonParams[$key]
+    }
 }
 
 # Helper function to make Elasticsearch API calls
