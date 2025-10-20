@@ -358,6 +358,40 @@ switch ($Action.ToLower()) {
         }
         Set-JiraIssueStatus -IssueKey $IssueKey -TransitionName $Parameters["TransitionName"]
     }
+    "recent" {
+        # Get recent tickets created by current user
+        $days = if ($Parameters["Days"]) { $Parameters["Days"] } else { 7 }
+        $username = if ($Parameters["Username"]) { $Parameters["Username"] } else { "david.bond" }
+        
+        Write-Host "Getting tickets created by $username in the last $days days..." -ForegroundColor Cyan
+        $jql = "reporter = $username AND created >= -${days}d ORDER BY created DESC"
+        $searchResult = Search-JiraIssues -JQL $jql
+        
+        if ($searchResult.issues -and $searchResult.issues.Count -gt 0) {
+            Write-Host "`nFound $($searchResult.total) recent tickets:" -ForegroundColor Green
+            
+            $searchResult.issues | ForEach-Object {
+                # Handle JIRA date format properly
+                $createdDate = $_.fields.created
+                if ($createdDate -match '(\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2})') {
+                    $created = $matches[1]
+                } else {
+                    $created = $createdDate
+                }
+                
+                [PSCustomObject]@{
+                    Key = $_.key
+                    Summary = $_.fields.summary
+                    Status = $_.fields.status.name
+                    Priority = $_.fields.priority.name
+                    Created = $created
+                    Assignee = if($_.fields.assignee) { $_.fields.assignee.displayName } else { "Unassigned" }
+                }
+            } | Format-Table -AutoSize
+        } else {
+            Write-Host "No tickets found in the last $days days" -ForegroundColor Yellow
+        }
+    }
     "team" {
         Get-QATeamIssues -TeamMember $Parameters["TeamMember"] -Status $Parameters["Status"]
     }
@@ -400,6 +434,7 @@ switch ($Action.ToLower()) {
         Write-Host "  comments  - Get all comments for an issue (requires IssueKey)"
         Write-Host "  history   - Get change history/transitions for an issue (requires IssueKey)"
         Write-Host "  search    - Search issues (requires JQL in Parameters)"
+        Write-Host "  recent    - Get recent tickets by user (optional Days and Username in Parameters)"
         Write-Host "  create    - Create new issue (requires ProjectKey, IssueType, Summary, Description in Parameters)"
         Write-Host "  update    - Update issue (requires IssueKey and Fields in Parameters)"
         Write-Host "  comment   - Add comment (requires IssueKey and Comment in Parameters)"
